@@ -1,35 +1,25 @@
+AM_CFLAGS = $(VCACHEAPI_CFLAGS)
 
-TESTS_ENVIRONMENT = PATH=$(VARNISH_BINDIR):$(VARNISH_SBINDIR):$$PATH
+TESTS_ENVIRONMENT = PATH=$(VCACHE_BINDIR):$(VCACHE_SBINDIR):$$PATH
 
-vmoddir = $(VMOD_DIR)
 vmod_LTLIBRARIES = libvmod_jq.la
 
-libvmod_jq_la_CFLAGS = $(VMOD_INCLUDES)
-libvmod_jq_la_LDFLAGS = -module -export-dynamic -avoid-version -shared \
-	$(LIBS)
+libvmod_jq_la_LDFLAGS = $(VMOD_LDFLAGS) $(LIBS)
 
 libvmod_jq_la_SOURCES = \
 	vmod_jq.c
 nodist_libvmod_jq_la_SOURCES = \
-	vcc_if.c \
-	vcc_if.h
+	vcc_jq_if.c \
+	vcc_jq_if.h
 
 dist_man_MANS = vmod_jq.3
 
-VTC_LOG_COMPILER = $(VARNISHTEST) -v \
-	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
+@BUILD_VMOD_JQ@
+
 TEST_EXTENSIONS = .vtc
+VTC_LOG_COMPILER = vtest -v -E@VTESTEXT@ \
+	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
 TESTS = @VMOD_TESTS@
-
-$(libvmod_jq_la_OBJECTS): vcc_if.h
-
-vcc_if.h vmod_jq.man.rst vmod_jq.rst: vcc_if.c
-
-vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod_jq.vcc
-	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod_jq.vcc
-
-vmod_jq.3: vmod_jq.man.rst
-	$(RST2MAN) $? $@
 
 EXTRA_DIST = vmod_jq.vcc \
 	$(TESTS)

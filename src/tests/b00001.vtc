@@ -1,11 +1,11 @@
-varnishtest "Test error handling"
+vtest "Test error handling"
 
 server s1 {
 	rxreq
 	txresp
 } -start
 
-varnish v1 -vcl+backend {
+vcache v1 -vcl+backend {
 	import jq from "${vmod_topbuild}/src/.libs/libvmod_jq.so";
 	import std;
 

@@ -3,7 +3,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/vmod_jq.vcc)
 AC_CONFIG_HEADERS([config.h])
-m4_ifndef([VARNISH_VMOD_INCLUDES], AC_MSG_ERROR([varnish.m4 is required.]))
 
 AM_INIT_AUTOMAKE([foreign color-tests parallel-tests])
 
@@ -25,29 +24,16 @@ AM_CONDITIONAL(USE_LCOV,
 AC_SEARCH_LIBS([jq_init], [jq], [],
   AC_MSG_ERROR([jq is required.]))
 
-m4_define_default([_AM_PYTHON_INTERPRETER_LIST],
-  [python3.10 python3.9 python3.8 python3.7 python3.6 python3.5 dnl
-   python3.4 python3 python])
-AM_PATH_PYTHON([3.4], [], [
-  AC_MSG_ERROR([Python 3.4 or later is required.])
-])
 
 AC_PATH_PROGS([RST2MAN], [rst2man rst2man.py])
 test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
 
-PKG_CHECK_VAR([VARNISH_PREFIX], [varnishapi], [prefix])
-PKG_CHECK_VAR([VARNISH_BINDIR], [varnishapi], [bindir])
-PKG_CHECK_VAR([VARNISH_SBINDIR], [varnishapi], [sbindir])
-PKG_CHECK_VAR([VARNISH_DATAROOT], [varnishapi], [datarootdir])
+VCACHE_REQUIRE(
+	[[vinyl],[9.1.0]],
+	[[varnish],[9.1.0]],
+)
 
-VARNISH_VMOD_INCLUDES
-VARNISH_VMOD_DIR
-VARNISH_VMODTOOL
-
-ac_default_prefix=$VARNISH_PREFIX
-
-AC_PATH_PROG([VARNISHTEST], [varnishtest], [], [$VARNISH_BINDIR:$PATH])
-AC_PATH_PROG([VARNISHD], [varnishd], [], [$VARNISH_SBINDIR:$PATH])
+VCACHE_VMODS([jq])
 
 VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
 AC_SUBST(VMOD_TESTS)

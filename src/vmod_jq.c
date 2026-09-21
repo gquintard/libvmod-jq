@@ -31,11 +31,11 @@
 
 #include <jq.h>
 
-#include "cache/cache_varnishd.h"
+#include "cache/cache_int.h"
 
 #include "vsb.h"
 
-#include "vcc_if.h"
+#include "vcc_jq_if.h"
 
 struct vmod_jq {
 	unsigned	magic;
